@@ -2,7 +2,7 @@
 
 namespace wfa {
     // Structs
-    struct AllocationInfo {
+    struct HostAllocationInfo {
         void* unalignedMemory;
     };
 
@@ -29,10 +29,10 @@ namespace wfa {
             return nullptr;
 
         // Calculate the needed offset for the aligned memory
-        size_t offset = alignment - 1 + sizeof(AllocationInfo);
+        size_t offset = alignment - 1 + sizeof(HostAllocationInfo);
 
         // Allocate all needed memory
-        AllocationInfo allocInfo;
+        HostAllocationInfo allocInfo;
         allocInfo.unalignedMemory = malloc(size + offset);
 
         if(!allocInfo.unalignedMemory)
@@ -41,8 +41,8 @@ namespace wfa {
         // Set the aligned memory
         void* alignedMemory = (void*)(((size_t)allocInfo.unalignedMemory + offset) & ~(alignment - 1));
         
-        // Copy the allocation info to the back of the aligned memory
-        ((AllocationInfo*)alignedMemory)[-1] = allocInfo;
+        // Copy the host allocation info to the back of the aligned memory
+        ((HostAllocationInfo*)alignedMemory)[-1] = allocInfo;
 
         return alignedMemory;
     }
@@ -52,11 +52,11 @@ namespace wfa {
             return nullptr;
         }
 
-        // Get the allocation info
-        AllocationInfo allocInfo = ((AllocationInfo*)pOriginal)[-1];
+        // Get the host allocation info
+        HostAllocationInfo allocInfo = ((HostAllocationInfo*)pOriginal)[-1];
 
         // Calculate the needed offset for the aligned memory
-        size_t offset = alignment - 1 + sizeof(AllocationInfo);
+        size_t offset = alignment - 1 + sizeof(HostAllocationInfo);
 
         // Reallocate the unaligned memory
         allocInfo.unalignedMemory = realloc(allocInfo.unalignedMemory, size + offset);
@@ -66,8 +66,8 @@ namespace wfa {
         // Set the aligned memory
         void* alignedMemory = (void*)(((size_t)allocInfo.unalignedMemory + offset) & ~(alignment - 1));
 
-        // Copy the allocation info to the back of the aligned memory
-        ((AllocationInfo*)alignedMemory)[-1] = allocInfo;
+        // Copy the host allocation info to the back of the aligned memory
+        ((HostAllocationInfo*)alignedMemory)[-1] = allocInfo;
 
         return 0;
     }
@@ -75,8 +75,8 @@ namespace wfa {
         if(!pMemory)
             return;
         
-        // Get the allocation info
-        AllocationInfo allocInfo = ((AllocationInfo*)pMemory)[-1];
+        // Get the host allocation info
+        HostAllocationInfo allocInfo = ((HostAllocationInfo*)pMemory)[-1];
 
         // Free the unaligned memory
         free(allocInfo.unalignedMemory);
@@ -91,5 +91,20 @@ namespace wfa {
     // Public functions
     VkAllocationCallbacks* GetAllocationCallbacks() {
         return &callbacks;
+    }
+    PFN_vkAllocationFunction GetAllocationFunctionPtr() {
+        return AllocationFunction;
+    }
+    PFN_vkReallocationFunction GetReallocationFunctionPtr() {
+        return ReallocationFunction;
+    }
+    PFN_vkFreeFunction GetFreeFunctionPtr() {
+        return FreeFunction;
+    }
+    PFN_vkInternalAllocationNotification GetInternalAllocationNotificationPtr() {
+        return InternalAllocationNotification;
+    }
+    PFN_vkInternalFreeNotification GetInternalFreeNotificationPtr() {
+        return InternalFreeNotification
     }
 }
