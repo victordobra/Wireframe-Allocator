@@ -105,6 +105,6 @@ namespace wfa {
         return InternalAllocationNotification;
     }
     PFN_vkInternalFreeNotification GetInternalFreeNotificationPtr() {
-        return InternalFreeNotification
+        return InternalFreeNotification;
     }
 }
