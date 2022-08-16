@@ -22,13 +22,13 @@ list(LENGTH SOURCES SOURCE_COUNT)
 
 if(SOURCE_COUNT EQUAL 0)
     message(FATAL_ERROR "ERROR: No sources found!")
-elseif(ENGINE_SOURCE_COUNT EQUAL 1)
+elseif(SOURCE_COUNT EQUAL 1)
     message(STATUS "1 source found.")
 else()
     message(STATUS "${SOURCE_COUNT} sources found.")
 endif()
 
-# Create the executable
+# Create the library
 add_library(${PROJECT_NAME} ${SOURCES})
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 message(STATUS "Library created successfully.")
@@ -36,17 +36,43 @@ message(STATUS "Library created successfully.")
 # Add the include directories
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/external/Vulkan/include)
 message(STATUS "Include directories added.")
-message(STATUS "Link libraries added.")
 
 # Add the link directories and link the libraries
-target_link_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/external/Core/lib ${PROJECT_SOURCE_DIR}/external/ImGui/lib ${PROJECT_SOURCE_DIR}/external/Vulkan/lib)
+target_link_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/external/Vulkan/lib)
 message(STATUS "Link directories added.")
-target_link_libraries(${PROJECT_NAME} ImGui-x86_64 Wireframe-Core-x86_64 vulkan-x86_64)
+target_link_libraries(${PROJECT_NAME} vulkan-x86_64)
 message(STATUS "Link libraries added.")
 
 # Add the precompiled header
 target_precompile_headers(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include/WireframeAllocator.hpp)
 message(STATUS "Precompiled header added.")
+
+# Find the test sources
+file(GLOB_RECURSE TESTS ${PROJECT_SOURCE_DIR}/test/*.cpp)
+list(LENGTH TESTS TEST_COUNT)
+
+if(TEST_COUNT EQUAL 0)
+    message(FATAL_ERROR "ERROR: No tests found!")
+elseif(TEST_COUNT EQUAL 1)
+    message(STATUS "1 test found.")
+else()
+    message(STATUS "${SOURCE_COUNT} tests found.")
+endif()
+
+# Create the test executable
+add_executable(Test ${TESTS})
+target_compile_features(Test PUBLIC cxx_std_20)
+message(STATUS "Test executable created successfully.")
+
+# Add the include directories
+target_include_directories(Test PUBLIC ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/test ${PROJECT_SOURCE_DIR}/external/Vulkan/include)
+message(STATUS "Test include directories added.")
+
+# Add the link directories and link the libraries
+target_link_directories(Test PUBLIC ${PROJECT_SOURCE_DIR}/external/Vulkan/lib)
+message(STATUS "Test link directories added.")
+target_link_libraries(Test vulkan-x86_64 ${PROJECT_NAME})
+message(STATUS "Test link libraries added.")
 
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)

@@ -69,7 +69,7 @@ namespace wfa {
         // Copy the host allocation info to the back of the aligned memory
         ((HostAllocationInfo*)alignedMemory)[-1] = allocInfo;
 
-        return 0;
+        return alignedMemory;
     }
     static void  VKAPI_CALL FreeFunction(void* pUserData, void* pMemory) {
         if(!pMemory)
