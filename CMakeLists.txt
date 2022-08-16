@@ -17,7 +17,7 @@ enable_testing()
 message(STATUS "Testing enabled successfilly")
 
 # Find the source files
-file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.c)
 list(LENGTH SOURCES SOURCE_COUNT)
 
 if(SOURCE_COUNT EQUAL 0)
@@ -44,11 +44,11 @@ target_link_libraries(${PROJECT_NAME} vulkan-x86_64)
 message(STATUS "Link libraries added.")
 
 # Add the precompiled header
-target_precompile_headers(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include/WireframeAllocator.hpp)
+target_precompile_headers(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include/WireframeAllocator.h)
 message(STATUS "Precompiled header added.")
 
 # Find the test sources
-file(GLOB_RECURSE TESTS ${PROJECT_SOURCE_DIR}/test/*.cpp)
+file(GLOB_RECURSE TESTS ${PROJECT_SOURCE_DIR}/test/*.c)
 list(LENGTH TESTS TEST_COUNT)
 
 if(TEST_COUNT EQUAL 0)
