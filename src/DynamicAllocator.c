@@ -274,6 +274,9 @@ WfaResult wfaDynamicAllocatorRealloc(WfaDynamicAllocator dynamicAllocator, size_
     // Copy from the old memory to the new one
     memcpy(pNewMemory, *ppMemory, (originalSize < size) ? originalSize : size);
 
+    // Set the new memory
+    *ppMemory = pNewMemory;
+
     return WFA_SUCCESS;
 }
 WfaResult wfaDynamicAllocatorFree(WfaDynamicAllocator dynamicAllocator, void* pMemory) {
