@@ -17,6 +17,8 @@ WfaResult wfaCreateDynamicAllocator(const WfaDynamicAllocatorCreateInfo* pDynami
     
     // Allocate the required memory
     *pDynamicAllocator = (WfaDynamicAllocator)malloc(sizeof(WfaDynamicAllocatorInfo) + pDynamicAllocatorInfo->freeListMaxSize * sizeof(WfaFreeListItem) + pDynamicAllocatorInfo->size);
+    if(!*pDynamicAllocator)
+        return WFA_ERROR_OUT_OF_MEMORY;
 
     // Set the dynamic allocator info
     WfaDynamicAllocatorInfo* info = (WfaDynamicAllocatorInfo*)*pDynamicAllocator;
@@ -177,11 +179,15 @@ WfaResult wfaDynamicAllocatorAlloc(WfaDynamicAllocator dynamicAllocator, size_t 
     return WFA_SUCCESS;
 }
 WfaResult wfaDynamicAllocatorRealloc(WfaDynamicAllocator dynamicAllocator, size_t size, size_t alignment, WfaFreeMemoryFindType freeMemoryFindType, void** ppMemory) {
+    // Check if all args are valid
     if(!dynamicAllocator || !size || !alignment || !ppMemory || (freeMemoryFindType != WFA_FREE_MEMORY_FIND_FIRST_FIT && freeMemoryFindType != WFA_FREE_MEMORY_FIND_BEST_FIT))
         return WFA_ERROR_INVALID_ARGS;
-
+    
     // Get the dynamic allocator info
     WfaDynamicAllocatorInfo* info = (WfaDynamicAllocatorInfo*)dynamicAllocator;
+    
+    if(*ppMemory < info->memory || *ppMemory >= info->memory + info->size)
+        return WFA_ERROR_MEMORY_OUT_OF_RANGE;
 
     // Get the item's original size and offset
     size_t originalSize = ((size_t*)*ppMemory)[-1];
@@ -285,6 +291,9 @@ WfaResult wfaDynamicAllocatorFree(WfaDynamicAllocator dynamicAllocator, void* pM
 
     // Get the dynamic allocator info
     WfaDynamicAllocatorInfo* info = (WfaDynamicAllocatorInfo*)dynamicAllocator;
+
+    if(pMemory < info->memory || pMemory >= info->memory + info->size)
+        return WFA_ERROR_MEMORY_OUT_OF_RANGE;
 
     // Get the item's original size and offset
     size_t originalSize = ((size_t*)pMemory)[-1];
